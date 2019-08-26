@@ -18,7 +18,7 @@ async function getFuelPriceHandler(ctx) {
   const commandEntity = entities.find(entity => entity.type === 'bot_command')
   let id = null
   if (commandEntity.length < text.length) {
-    id = text.slice(7).trim()
+    id = text.slice(commandEntity.length).trim()
   }
 
   const stations = await getFuelPrices(id)
