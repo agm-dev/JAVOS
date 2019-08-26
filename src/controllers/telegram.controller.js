@@ -1,5 +1,14 @@
 const { getFuelPrices } = require('../services/fuel-price-informer')
 
+function errorHandler(fn) {
+  return function (ctx) {
+    return fn(ctx).catch(err => {
+      console.log('errorHandler', err.message)
+      ctx.reply(`Ay! Creo que he sufrido un cortocircuito...`)
+    })
+  }
+}
+
 async function getFuelPriceHandler(ctx) {
   const {
     entities,
@@ -22,5 +31,6 @@ async function getFuelPriceHandler(ctx) {
 }
 
 module.exports = {
+  errorHandler,
   getFuelPriceHandler,
 }
