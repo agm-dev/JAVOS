@@ -1,4 +1,7 @@
 const { getFuelPrices } = require('../services/fuel-price-informer')
+const { getYelmoInfo } = require('../services/yelmo-cinema')
+
+const SYNOPSIS_MAX_LENGTH = 500
 
 function errorHandler(fn) {
   return function (ctx) {
@@ -30,7 +33,36 @@ async function getFuelPriceHandler(ctx) {
   ctx.reply(message)
 }
 
+async function getYelmoInfoHandler(ctx) {
+  const data = await getYelmoInfo()
+  const {
+    date,
+    movies,
+  } = data
+
+  ctx.reply(`Cartelera en Yelmo cine H2O para el ${date}`)
+    .then(() => {
+      movies.forEach(movie => {
+        const {
+          sessions,
+          title,
+          synopsis,
+          premiere,
+          minutes,
+          genre,
+        } = movie
+
+        const sessionString = sessions.map(i => `${i.time} (${i.format})`).join(', ')
+        const limitedSynopsis = synopsis.length > SYNOPSIS_MAX_LENGTH ? `${synopsis.slice(0, SYNOPSIS_MAX_LENGTH)}...` : synopsis
+        const row = `${premiere ? `¡¡ESTRENO!!\n\n` : ''}Título: ${title}\nDuración: ${minutes} min\nGénero: ${genre}\nSinópsis: ${limitedSynopsis}\n\nSesiones: ${sessionString}`
+
+        ctx.reply(row)
+      })
+    })
+}
+
 module.exports = {
   errorHandler,
   getFuelPriceHandler,
+  getYelmoInfoHandler,
 }
